@@ -42,6 +42,9 @@ class Post
     #[ORM\Column(nullable: true)]
     private ?int $type = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image_path = null;
+
     public function __construct()
     {
         $this->Media = new ArrayCollection();
@@ -163,6 +166,18 @@ class Post
     public function setType(?int $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getImagePath(): ?string
+    {
+        return $this->image_path;
+    }
+
+    public function setImagePath(?string $image_path): static
+    {
+        $this->image_path = $image_path;
 
         return $this;
     }

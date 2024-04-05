@@ -44,6 +44,9 @@ class Project
     #[ORM\ManyToMany(targetEntity: Skills::class, inversedBy: 'projects')]
     private Collection $skill;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image_path = null;
+
     public function __construct()
     {
         $this->messages = new ArrayCollection();
@@ -189,6 +192,18 @@ class Project
     public function removeSkill(Skills $skill): static
     {
         $this->skill->removeElement($skill);
+
+        return $this;
+    }
+
+    public function getImagePath(): ?string
+    {
+        return $this->image_path;
+    }
+
+    public function setImagePath(?string $image_path): static
+    {
+        $this->image_path = $image_path;
 
         return $this;
     }
