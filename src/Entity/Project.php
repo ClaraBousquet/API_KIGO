@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ProjectRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
@@ -32,6 +34,21 @@ class Project
 
     #[ORM\Column(nullable: true)]
     private ?bool $is_over = null;
+
+    #[ORM\OneToMany(mappedBy: 'project', targetEntity: Messages::class)]
+    private Collection $messages;
+
+    #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist', 'remove'])]
+    private ?Post $post = null;
+
+    #[ORM\ManyToMany(targetEntity: Skills::class, inversedBy: 'projects')]
+    private Collection $skill;
+
+    public function __construct()
+    {
+        $this->messages = new ArrayCollection();
+        $this->skill = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -106,6 +123,72 @@ class Project
     public function setIsOver(?bool $is_over): static
     {
         $this->is_over = $is_over;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Messages>
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Messages $message): static
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Messages $message): static
+    {
+        if ($this->messages->removeElement($message)) {
+            // set the owning side to null (unless already changed)
+            if ($message->getProject() === $this) {
+                $message->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getPost(): ?Post
+    {
+        return $this->post;
+    }
+
+    public function setPost(?Post $post): static
+    {
+        $this->post = $post;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Skills>
+     */
+    public function getSkill(): Collection
+    {
+        return $this->skill;
+    }
+
+    public function addSkill(Skills $skill): static
+    {
+        if (!$this->skill->contains($skill)) {
+            $this->skill->add($skill);
+        }
+
+        return $this;
+    }
+
+    public function removeSkill(Skills $skill): static
+    {
+        $this->skill->removeElement($skill);
 
         return $this;
     }

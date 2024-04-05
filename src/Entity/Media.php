@@ -21,6 +21,11 @@ class Media
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $label = null;
 
+    #[ORM\ManyToOne(inversedBy: 'Media')]
+    private ?Post $posts = null;
+
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -49,4 +54,18 @@ class Media
 
         return $this;
     }
+
+    public function getPosts(): ?Post
+    {
+        return $this->posts;
+    }
+
+    public function setPosts(?Post $posts): static
+    {
+        $this->posts = $posts;
+
+        return $this;
+    }
+
+
 }

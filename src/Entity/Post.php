@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\PostRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
@@ -24,11 +26,28 @@ class Post
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $created_at = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $updated_at = null;
+  
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $type = null;
+   
+
+    #[ORM\ManyToOne(inversedBy: 'posts')]
+    private ?User $user = null;
+
+    #[ORM\OneToMany(mappedBy: 'posts', targetEntity: Media::class)]
+    private Collection $Media;
+
+    #[ORM\OneToOne(mappedBy: 'post', cascade: ['persist', 'remove'])]
+    private ?Project $project = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $type = null;
+
+    public function __construct()
+    {
+        $this->Media = new ArrayCollection();
+    }
+
+
 
     public function getId(): ?int
     {
@@ -72,15 +91,81 @@ class Post
     }
 
 
-    public function getType(): ?string
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Media>
+     */
+    public function getMedia(): Collection
+    {
+        return $this->Media;
+    }
+
+    public function addMedium(Media $medium): static
+    {
+        if (!$this->Media->contains($medium)) {
+            $this->Media->add($medium);
+            $medium->setPosts($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMedium(Media $medium): static
+    {
+        if ($this->Media->removeElement($medium)) {
+            // set the owning side to null (unless already changed)
+            if ($medium->getPosts() === $this) {
+                $medium->setPosts(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getProject(): ?Project
+    {
+        return $this->project;
+    }
+
+    public function setProject(?Project $project): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($project === null && $this->project !== null) {
+            $this->project->setPost(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($project !== null && $project->getPost() !== $this) {
+            $project->setPost($this);
+        }
+
+        $this->project = $project;
+
+        return $this;
+    }
+
+    public function getType(): ?int
     {
         return $this->type;
     }
 
-    public function setType(?string $type): static
+    public function setType(?int $type): static
     {
         $this->type = $type;
 
         return $this;
     }
+
+
 }

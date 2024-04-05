@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New TypeContact{% endblock %}
+
+{% block body %}
+    <h1>Create new TypeContact</h1>
+
+    {{ include('type_contact/_form.html.twig') }}
+
+    <a href="{{ path('app_type_contact_index') }}">back to list</a>
+{% endblock %}
