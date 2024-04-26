@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Contact;
+use App\Entity\Filiere;
 use App\Entity\Media;
 use App\Entity\Messages;
 use App\Entity\Post;
@@ -91,6 +92,11 @@ class DashboardController extends AbstractDashboardController
          yield MenuItem::subMenu('Gestion des Utilisateurs', 'fa fa-user-circle-o')->setSubItems([
         MenuItem::linkToCrud('Ajouter un utilisateur', 'fa fa-plus', User::class)->setAction(Crud::PAGE_NEW),
         MenuItem::linkToCrud('Liste des utilisateurs', 'fa fa-list', User::class),
+       ]);
+
+ yield MenuItem::subMenu('Gestion des Filieres', 'fa fa-user-circle-o')->setSubItems([
+        MenuItem::linkToCrud('Ajouter une filière', 'fa fa-plus', Filiere::class)->setAction(Crud::PAGE_NEW),
+        MenuItem::linkToCrud('Liste des filires', 'fa fa-list', Filiere::class),
        ]);
 
        

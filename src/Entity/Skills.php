@@ -26,10 +26,18 @@ class Skills
     #[ORM\ManyToMany(targetEntity: Project::class, mappedBy: 'skill')]
     private Collection $projects;
 
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'skills')]
+    private Collection $users;
+
+    #[ORM\ManyToMany(targetEntity: Post::class, mappedBy: 'skills')]
+    private Collection $posts;
+
     public function __construct()
     {
         $this->profils = new ArrayCollection();
         $this->projects = new ArrayCollection();
+        $this->users = new ArrayCollection();
+        $this->posts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -98,6 +106,60 @@ class Skills
     {
         if ($this->projects->removeElement($project)) {
             $project->removeSkill($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): static
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+            $user->addSkill($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): static
+    {
+        if ($this->users->removeElement($user)) {
+            $user->removeSkill($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Post>
+     */
+    public function getPosts(): Collection
+    {
+        return $this->posts;
+    }
+
+    public function addPost(Post $post): static
+    {
+        if (!$this->posts->contains($post)) {
+            $this->posts->add($post);
+            $post->addSkill($this);
+        }
+
+        return $this;
+    }
+
+    public function removePost(Post $post): static
+    {
+        if ($this->posts->removeElement($post)) {
+            $post->removeSkill($this);
         }
 
         return $this;

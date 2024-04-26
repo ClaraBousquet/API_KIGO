@@ -2,22 +2,34 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UserRepository;
+use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ApiResource(
+    normalizationContext: ["groups" => ["user:read"]],
+    denormalizationContext: ["groups" => ["user:write"]]
+) ]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+
+
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+     #[Groups(['user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(["user:read", "user:write"]) ]
     private ?string $email = null;
 
     /**
@@ -30,6 +42,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
+     #[Groups([ 'user:write'])]
     private ?string $password = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Post::class)]
@@ -38,9 +51,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Profil $profil = null;
 
+     #[Groups(['user:read'])]
+     #[ORM\Column(length: 255, nullable: true)]
+     private ?string $nickname = null;
+
+     #[Groups(['user:read', 'user:write'])]
+     #[ORM\ManyToOne(inversedBy: 'user')]
+     private ?Filiere $filiere = null;
+
+     #[ORM\ManyToMany(targetEntity: Skills::class, inversedBy: 'users')]
+         #[Groups(["user:read", "user:write"]) ]
+     private Collection $skills;
+
+     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(["user:read", "user:write"]) ]
+
+     private ?string $biography = null;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
+        $this->skills = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -159,4 +190,64 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+     public function getNickname(): ?string
+    {
+         return $this->nickname;
+     }
+
+     public function setNickname(?string $nickname): static
+     {
+        $this->nickname = $nickname;
+
+         return $this;
+     }
+
+     public function getFiliere(): ?Filiere
+     {
+         return $this->filiere;
+     }
+
+     public function setFiliere(?Filiere $filiere): static
+     {
+         $this->filiere = $filiere;
+
+         return $this;
+     }
+
+     /**
+      * @return Collection<int, Skills>
+      */
+     public function getSkills(): Collection
+     {
+         return $this->skills;
+     }
+
+     public function addSkill(Skills $skill): static
+     {
+         if (!$this->skills->contains($skill)) {
+             $this->skills->add($skill);
+         }
+
+         return $this;
+     }
+
+     public function removeSkill(Skills $skill): static
+     {
+         $this->skills->removeElement($skill);
+
+         return $this;
+     }
+
+     public function getBiography(): ?string
+     {
+         return $this->biography;
+     }
+
+     public function setBiography(?string $biography): static
+     {
+         $this->biography = $biography;
+
+         return $this;
+     }
 }
